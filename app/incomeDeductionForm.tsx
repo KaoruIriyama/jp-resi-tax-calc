@@ -18,7 +18,7 @@ export default function IncomeDeductionForm({handleshotokuKojoKingaku, kyuyoSyot
     let seimeiHokenRyoKojo = seimeihokenRyoKojoTotal>70000 ? 70000:seimeihokenRyoKojoTotal;
 
     //地震保険料の計算
-    let jishinHokenRyoKojo = jishinHokenRyo>25000 ? 25000:jishinHokenRyo;
+    let jishinHokenRyoKojo = (jishinHokenRyo/2)>25000 ? 25000:jishinHokenRyo/2;
 
     //所得控除金額を算出し、親に渡す。
     let syotokuKojoTotal:number;
@@ -69,7 +69,7 @@ export default function IncomeDeductionForm({handleshotokuKojoKingaku, kyuyoSyot
         <input
         type="number"
         value={jishinHokenRyo}
-        onChange={(e)=>setjishinHokenRyo(parseInt(e.target.value)/2)}
+        onChange={(e)=>setjishinHokenRyo(parseInt(e.target.value))}
         />
         <p>
             <small>平成18年までに締結した長期損害保険料には非対応</small>
