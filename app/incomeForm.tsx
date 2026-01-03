@@ -29,25 +29,25 @@ export default function IncomeForm({handleKyuyoSyotokuKingaku}) {
 function calcShotokuKingaku(inputtedShunyu:number):number{
   let result:number;
 
-  if(inputtedShunyu<550999){
+  if(inputtedShunyu<=550999){
     result = 0;
-  }else if(inputtedShunyu<1618999){
+  }else if(inputtedShunyu<=1618999){
     result = inputtedShunyu - 550000;
-  }else if(inputtedShunyu<1619999){
+  }else if(inputtedShunyu<=1619999){
     result = 1069000;
-  }else if(inputtedShunyu<1621999){
+  }else if(inputtedShunyu<=1621999){
     result = 1070000;
-  }else if(inputtedShunyu<1623999){
+  }else if(inputtedShunyu<=1623999){
     result = 1072000;
-  }else if(inputtedShunyu<1627999){
+  }else if(inputtedShunyu<=1627999){
     result = 1074000;
-  }else if(inputtedShunyu<1799999){
+  }else if(inputtedShunyu<=1799999){
     result = divideWith4(inputtedShunyu) * 2.4 + 100000;
-  }else if(inputtedShunyu<3599999){
+  }else if(inputtedShunyu<=3599999){
     result = divideWith4(inputtedShunyu) * 2.8 - 80000;
-  }else if(inputtedShunyu<6599999){
+  }else if(inputtedShunyu<=6599999){
     result = divideWith4(inputtedShunyu) * 3.2 - 440000;
-  }else if(inputtedShunyu<8499999){
+  }else if(inputtedShunyu<=8499999){
     result = inputtedShunyu * 0.9 -1100000;
   }else{
     result = inputtedShunyu - 1950000;

@@ -21,8 +21,13 @@ export default function IncomeDeductionForm({handleshotokuKojoKingaku, kyuyoSyot
     let jishinHokenRyoKojo = (jishinHokenRyo/2)>25000 ? 25000:jishinHokenRyo/2;
 
     //所得控除金額を算出し、親に渡す。
-    let syotokuKojoTotal:number;
-    syotokuKojoTotal = kisoKojo + syakaiHokenRyoKojo + iDeCo + seimeiHokenRyoKojo;
+    let syotokuKojoTotal:number = 0;
+    syotokuKojoTotal = 
+        kisoKojo + 
+        syakaiHokenRyoKojo + 
+        iDeCo + 
+        seimeiHokenRyoKojo +
+        jishinHokenRyoKojo;
 
     handleshotokuKojoKingaku(syotokuKojoTotal);
 
@@ -79,11 +84,11 @@ export default function IncomeDeductionForm({handleshotokuKojoKingaku, kyuyoSyot
 }
 //所得金額から基礎控除を判定する。
 function calcKisoKojo(kyuyoSyotokuKingaku:number):number{
-    if(kyuyoSyotokuKingaku<24000000){
+    if(kyuyoSyotokuKingaku<=24000000){
         return 430000;
-    }else if(kyuyoSyotokuKingaku<24500000){
+    }else if(kyuyoSyotokuKingaku<=24500000){
         return 290000;
-    }else if(kyuyoSyotokuKingaku<25000000){
+    }else if(kyuyoSyotokuKingaku<=25000000){
         return 150000;
     }else{
         return 0;
@@ -91,11 +96,11 @@ function calcKisoKojo(kyuyoSyotokuKingaku:number):number{
 }
 //生命保険料から生命保険料控除を計算する。
 function calcSeimeiHokenRyoKojo(inputtedHokenRyo:number):number{
-    if(inputtedHokenRyo<12000){
+    if(inputtedHokenRyo<=12000){
         return inputtedHokenRyo;
-    }else if(inputtedHokenRyo<32000){
+    }else if(inputtedHokenRyo<=32000){
         return inputtedHokenRyo/2 + 6000;
-    }else if(inputtedHokenRyo<56000){
+    }else if(inputtedHokenRyo<=56000){
         return inputtedHokenRyo/4 + 14000;
     }else{
         return 28000;
