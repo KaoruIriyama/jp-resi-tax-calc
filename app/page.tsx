@@ -15,8 +15,9 @@ export default function Home() {
   const handleshotokuKojoKingaku = (input:number) => {setshotokuKojoKingaku(input)};
   const handletokubetsukuminZeigakuKojo = (input:number) => {settokubetsukuminZeigakuKojo(input)};
   const handletominZeigakuKojo = (input:number) => {settominZeigakuKojo(input)};
-
-  let kazeiHyojunKingaku:number = kyuyoSyotokuKingaku - shotokuKojoKingaku;
+  //（３）課税標準額の計算
+  let kazeiHyojunKingaku:number = Math.floor((kyuyoSyotokuKingaku - shotokuKojoKingaku)/1000) * 1000;
+  //（４）所得割額（税額控除前）の計算
   let tokubetsukuminZei:number = kazeiHyojunKingaku * 0.06;
   let tominZei:number = kazeiHyojunKingaku * 0.04;
 
@@ -46,11 +47,13 @@ export default function Home() {
           kyuyoSyotokuKingaku={kyuyoSyotokuKingaku}
           ></TaxDeductionForm>
         <h2>所得割額</h2>
+        {/** （６）所得割額の計算*/}
         <ul>
           <li>特別区民税：{tokubetsukuminZei - tokubetsukuminZeigakuKojo}</li>
           <li>都民税：{tominZei - tominZeigakuKojo}</li>
         </ul>
         <h2>均等割・森林環境税（国税）</h2>
+        {/**（７）均等割額の計算　　 */}
         <ul>
           <li>特別区民税：3000</li>
           <li>都民税：1000</li>
@@ -59,6 +62,7 @@ export default function Home() {
         <small>※均等割の軽減措置は非対応です。</small>
         <h2>年税額</h2>
         <p>
+          {/**（８）年税額の計算 */}
           {(tokubetsukuminZei - tokubetsukuminZeigakuKojo)+(tominZei - tominZeigakuKojo)+5000}
         </p>
       </main>
