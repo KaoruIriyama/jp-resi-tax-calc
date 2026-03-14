@@ -2,27 +2,27 @@ import { useState, useEffect } from "react";
 import NumForm from "./numForm";
 export default function TaxDeductionForm({ handletokubetsukuminZeigakuKojo, handletominZeigakuKojo, kazeiHyojunKingaku, kyuyoSyotokuKingaku }:
     { handletokubetsukuminZeigakuKojo: any; handletominZeigakuKojo: any; kazeiHyojunKingaku: number; kyuyoSyotokuKingaku: number }) {
-    const [haitoKojo, sethaitoKojo] = useState<number>(0);
+
+    const [isHaitoChecked, setIsHaitoChecked] = useState(false);
+    const [riekiHaito, setriekiHaito] = useState<number>(0);
+    const [shokenHaito, setshokenHaito] = useState<number>(0);
+    const [gaikaShokenHaito, setgaikaShokenHaito] = useState<number>(0);
     const [syotokuzei, setsyotokuzei] = useState<number>(0);
-    const [isChecked, setIsChecked] = useState(false);
+    const [isJutakuloanChecked, setIsJutakuloanChecked] = useState(false);
     const [jutakuloanzandaka, setjutakuloanzandaka] = useState<number>(0);
-    //const [jutakuloanKojo, setjutakuloanKojo] = useState<number>(0);
     const [kifukinKojo, setkifukinKojo] = useState<number>(0);
     const [furusatoNozei, setfurusatoNozei] = useState<number>(0);
 
-    const handleCheckboxChange = (event: any) => { setIsChecked(event.target.checked); };
+    const handleJutakuloanChange = (event: any) => { setIsJutakuloanChecked(event.target.checked); };
+    const handleHaitoChange = (event: any) => { setIsHaitoChecked(event.target.checked); };
     //（５）税額控除の計算
     //調整控除
     let choseiKojo: number = calcChoseiKojo(kazeiHyojunKingaku, kyuyoSyotokuKingaku);
-    //TODO: 配当控除の計算ロジックの実装
-    // 課税総所得金額（山林・退職所得を除く）                                <= 10,000,000 || > 10,000,001	
-    // 配当の種類	                                                      区民税    都民税  区民税  都民税
-    // 利益の配当、剰余金の分配、特定株式投資信託の収益の分配	               1.6%    1.2%    0.8%    0.6%
-    // 証券投資信託の収益の分配(特定株式投資信託、外貨建証券投資信託を除く）	0.8%	0.6%	0.4%	0.3%
-    // 外貨建証券投資信託の収益の分配（特定外貨建投資信託を除く）	           0.4%    0.3%    0.2%    0.15%
+    // 配当控除
+    let haitoKojo: number = isHaitoChecked ? calcHaitoKojo(kazeiHyojunKingaku, riekiHaito, shokenHaito, gaikaShokenHaito) : 0;
 
     //住宅ローン控除
-    let jutakuloanKojoTotal = calcJutakuloanKojo(jutakuloanzandaka, syotokuzei, kazeiHyojunKingaku);
+    let jutakuloanKojoTotal = isJutakuloanChecked ? calcJutakuloanKojo(jutakuloanzandaka, syotokuzei, kazeiHyojunKingaku) : 0;
     //寄附金控除
     let kifukinKojoTotal = kifukinKojo === 0 ? kifukinKojo : (kifukinKojo - 2000) * 0.1;
     // 地方公共団体に対しての寄附金控除(ふるさと納税)
@@ -57,10 +57,18 @@ export default function TaxDeductionForm({ handletokubetsukuminZeigakuKojo, hand
                 <li>特別区民税：{choseiKojo * 0.6}</li>
                 <li>都民税：{choseiKojo * 0.4}</li>
             </ul>
-            <h3>住宅ローン控除  [計算する<input type="checkbox" checked={isChecked} onChange={handleCheckboxChange} />]</h3>
-
+            <h3>配当控除  [計算する<input type="checkbox" checked={isHaitoChecked} onChange={handleHaitoChange} />]</h3>
             {/* &&演算子を使って、trueの時だけulを表示 */}
-            {isChecked && (
+            {isHaitoChecked && (
+                <ul>
+                    <li>利益の配当、剰余金の分配、<br />特定株式投資信託の収益の分配：<NumForm data={riekiHaito} setDataState={setriekiHaito}></NumForm></li>
+                    <li>証券投資信託の収益の分配：<NumForm data={shokenHaito} setDataState={setshokenHaito}></NumForm></li>
+                    <li>外貨建証券投資信託の収益の分配：<NumForm data={gaikaShokenHaito} setDataState={setgaikaShokenHaito}></NumForm></li>
+                </ul>
+            )}
+            <h3>住宅ローン控除  [計算する<input type="checkbox" checked={isJutakuloanChecked} onChange={handleJutakuloanChange} />]</h3>
+            {/* &&演算子を使って、trueの時だけulを表示 */}
+            {isJutakuloanChecked && (
                 <ul>
                     <li>住宅ローン残高：<NumForm data={jutakuloanzandaka} setDataState={setjutakuloanzandaka}></NumForm></li>
                     <li>所得税：<NumForm data={syotokuzei} setDataState={setsyotokuzei}></NumForm></li>
@@ -74,7 +82,7 @@ export default function TaxDeductionForm({ handletokubetsukuminZeigakuKojo, hand
     );
 }
 
-
+//調整控除計算
 function calcChoseiKojo(kazeiHyojunKingaku: number, kyuyoSyotokuKingaku: number): number {
     //人的基礎控除差額
     const kazeiHyojun_Threshold: number = 2000000;//課税標準額の閾値
@@ -89,16 +97,31 @@ function calcChoseiKojo(kazeiHyojunKingaku: number, kyuyoSyotokuKingaku: number)
         return Math.max(kojoSagaku_base * 0.05, 2500);
     }
 }
+// 配当控除計算
+function calcHaitoKojo(kazeiHyojunKingaku: number, riekiHaito: number, shokenHaito: number, gaikaShokenHaito: number): number {
+
+    let haitoKojoTotal: number = 0;
+    //課税総所得金額（山林・退職所得を除く）が1000万円を超えるか
+    let isSyotokuHyojunOver: boolean = !(kazeiHyojunKingaku <= 10000000);
+    // 利益の配当、剰余金の分配、特定株式投資信託の収益の分配
+    let riekiHaitoKojo: number = isSyotokuHyojunOver ? riekiHaito * 0.008 : riekiHaito * 0.016;
+    // 証券投資信託の収益の分配(特定株式投資信託、外貨建証券投資信託を除く）
+    let shokenHaitoKojo: number = isSyotokuHyojunOver ? shokenHaito * 0.004 : shokenHaito * 0.008;
+    // 外貨建証券投資信託の収益の分配（特定外貨建投資信託を除く）
+    let gaikaShokenHaitoKojo: number = isSyotokuHyojunOver ? gaikaShokenHaito * 0.002 : gaikaShokenHaito * 0.004;
+    haitoKojoTotal = riekiHaitoKojo + shokenHaitoKojo + gaikaShokenHaitoKojo;
+    return haitoKojoTotal;
+}
 //住宅ローン控除計算
 function calcJutakuloanKojo(jutakuloanzandaka: number, syotokuzei: number, kazeiHyojunKingaku: number): number {
-    const jutakuloanKojoritsu_syotoku = 0.007;
-    let jutakuloan_sagaku = jutakuloanzandaka * jutakuloanKojoritsu_syotoku - syotokuzei;
+    const jutakuloanKojoritsu_syotoku: number = 0.007;
+    let jutakuloan_sagaku: number = jutakuloanzandaka * jutakuloanKojoritsu_syotoku - syotokuzei;
 
-    let jutakuloan_KojoGendo = 136500; // 居住開始年月 平成28年1月から令和3年12月まで | 令和4年1月から令和7年12月まで :97500
-    let jutakuloanKojoritsu_jumin = 0.07; // 居住開始年月 平成28年1月から令和3年12月まで | 令和4年1月から令和7年12月まで :0.05
-    let jutakuloanKojo_Threshold = Math.min(kazeiHyojunKingaku * jutakuloanKojoritsu_jumin, jutakuloan_KojoGendo);
+    let jutakuloan_KojoGendo: number = 136500; // 居住開始年月 平成28年1月から令和3年12月まで | 令和4年1月から令和7年12月まで :97500
+    let jutakuloanKojoritsu_jumin: number = 0.07; // 居住開始年月 平成28年1月から令和3年12月まで | 令和4年1月から令和7年12月まで :0.05
+    let jutakuloanKojo_Threshold: number = Math.min(kazeiHyojunKingaku * jutakuloanKojoritsu_jumin, jutakuloan_KojoGendo);
 
-    let jutakuloanKojoTotal = Math.min(jutakuloan_sagaku, jutakuloanKojo_Threshold);
+    let jutakuloanKojoTotal: number = Math.min(jutakuloan_sagaku, jutakuloanKojo_Threshold);
     return jutakuloanKojoTotal;
 }
 
@@ -140,11 +163,6 @@ class zeigakuKojo {
         this.furusato = furusato;
 
         this.syotoku = syotoku;
-        // if(this.kifukin + this.furusato > (this.syotoku * 0.3)){
-        //     this.kifukin = this.syotoku * 0.3;
-        // }else{
-        //     this.kifukin = this.kifukin + this.furusato;
-        // }
         //NOTE:所得*0.3とふるさと納税のうち小さいほうを寄付金として算出するから以下のように書ける？？
         this.kifukin = Math.min((this.kifukin + this.furusato), this.syotoku * 0.3);
 
@@ -153,6 +171,7 @@ class zeigakuKojo {
     gettokubetsukuminZeigakuKojoTotal(): number {
         let tokubetsukuminZeigakuKojoTotal: number =
             this.chosei * 0.6 //区3%(=調整控除5%の6割)
+            + this.haito
             + this.jutakuloan * 0.6 //区5分の3
             + this.kifukin * 0.06 //区6％
             // + this.furusato * 0.6 //区5分の3
@@ -163,6 +182,7 @@ class zeigakuKojo {
     gettominZeigakuKojoTotal(): number {
         let tokubetsukuminZeigakuKojoTotal: number =
             this.chosei * 0.4 //都2%(=調整控除5%の4割)
+            + this.haito * 0.5 // 配当控除　都民税控除額は区民税控除額の半分
             + this.jutakuloan * 0.4 //都5分の2
             + this.kifukin * 0.04 //都4％
             // + this.furusato * 0.4 //都5分の2
